@@ -2,9 +2,9 @@ require 'formula'
 
 class HpnSsh < Formula
   homepage 'http://www.openssh.com/'
-  url 'http://ftp5.usa.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-6.1p1.tar.gz'
-  version '6.1p1'
-  sha1 '751c92c912310c3aa9cadc113e14458f843fc7b3'
+  url 'http://ftp5.eu.openbsd.org/ftp/pub/OpenBSD/OpenSSH/portable/openssh-6.3p1.tar.gz'
+  version '6.3p1'
+  sha1 '70845ca79474258cab29dbefae13d93e41a83ccb'
 
   option 'with-brewed-openssl', 'Build with Homebrew OpenSSL instead of the system version'
 
@@ -15,7 +15,7 @@ class HpnSsh < Formula
   conflicts_with 'openssh'
 
   def patches
-    'http://www.psc.edu/index.php/component/remository/func-download/861/chk,6fc68ae8bbdc9eac36432fe2091821bc/no_html,1/'
+    'http://www.psc.edu/index.php/component/remository/func-download/920/chk,456c4473b0d55756c9c61adfd0fadb77/no_html,1/'
   end
 
   def install
@@ -27,6 +27,7 @@ class HpnSsh < Formula
 
     args << "--with-ssl-dir=#{Formula.factory('openssl').opt_prefix}" if build.with? 'brewed-openssl'
     args << "--with-ldns" if build.with? "ldns"
+    args << "--without-openssl-header-check"
 
     system "./configure", *args
     system "make"
