@@ -15,7 +15,7 @@ class HpnSsh < Formula
   conflicts_with 'openssh'
 
   def patches
-    'http://www.psc.edu/index.php/component/remository/func-download/920/chk,456c4473b0d55756c9c61adfd0fadb77/no_html,1/'
+    'http://www.psc.edu/index.php/component/remository/func-download/920/chk,eafd6b4620bdd2e45c84e6934c2fa816/no_html,1/'
   end
 
   def install
