@@ -2,7 +2,7 @@ require 'formula'
 
 class HpnSsh < Formula
   homepage 'http://www.openssh.com/'
-  url 'http://anga.funkfeuer.at/ftp/pub/OpenBSD/OpenSSH/portable/openssh-6.5p1.tar.gz'
+  url 'http://ftp5.usa.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-6.5p1.tar.gz'
   version '6.5p1'
   sha1 '3363a72b4fee91b29cf2024ff633c17f6cd2f86d'
 
@@ -16,17 +16,19 @@ class HpnSsh < Formula
 
   conflicts_with 'openssh'
 
-  def patches
-    p = []
-    # Apply a revised version of Simon Wilkinson's gsskex patch (http://www.sxw.org.uk/computing/patches/openssh.html), which has also been included in Apple's openssh for a while
-    p << 'https://gist.github.com/kruton/8951373/raw/a05b4a2d50bbac68e97d4747c1a34b53b9a941c4/openssh-6.5p1-apple-keychain.patch' if build.with? 'keychain-support'
-    p << 'http://downloads.sourceforge.net/project/hpnssh/HPN-SSH%2014v4%206.5p1/openssh-6.5p1-hpnssh14v4.diff.gz'
-    p
-  end
+  patch do
+    # Apply Kenny Root's revised version of Simon Wilkinson's gsskex patch (http://www.sxw.org.uk/computing/patches/openssh.html),
+    # which has also been included in Apple's openssh for a while.
+    # https://gist.github.com/kruton/8951373
+    url 'https://gist.github.com/kruton/8951373/raw/a05b4a2d50bbac68e97d4747c1a34b53b9a941c4/openssh-6.5p1-apple-keychain.patch'
+    sha1 '28b175507688db38a8c543f4afdb31b5ca994eeb'
+  end if build.with? 'keychain-support'
 
-  # def patches
-  #   'http://downloads.sourceforge.net/project/hpnssh/HPN-SSH%2014v4%206.5p1/openssh-6.5p1-hpnssh14v4.diff.gz'
-  # end
+  patch do
+    # The HPN-SSH patch installs over the Apple Keychain patch
+    url 'http://downloads.sourceforge.net/project/hpnssh/HPN-SSH%2014v4%206.5p1/openssh-6.5p1-hpnssh14v4.diff.gz'
+    sha1 '63080015f0222bd7a0726da59b397230e0a81bc4'
+  end
 
   def install
     system "autoreconf -i" if build.with? 'keychain-support'
