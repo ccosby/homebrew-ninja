@@ -1,5 +1,3 @@
-require 'formula'
-
 class Gam < Formula
   desc 'Command line management for Google Apps'
   homepage 'https://github.com/jay0lee/GAM'
@@ -66,6 +64,7 @@ class Gam < Formula
 
   def install
     ENV.prepend_create_path 'PYTHONPATH', libexec/'vendor/lib/python2.7/site-packages'
+
     %w[
       httplib2
       googleapiclient
@@ -82,12 +81,52 @@ class Gam < Formula
       resource(r).stage do
         system 'python', *Language::Python.setup_install_args(libexec/'vendor')
       end
-      end
+    end
 
-    (libexec/'bin').install %w[src/gam.py]
+    (libexec/'bin').install %w[
+      src/LICENSE
+      src/gam.py
+    ]
+
+    (prefix/'config').install %w[
+      src/admin-settings-v1.json
+      src/cloudprint-v2.json
+    ]
 
     bin.install_symlink 'gam.py' => 'gam'
-    bin.env_script_all_files(libexec/'bin', :PYTHONPATH => ENV['PYTHONPATH'])
+    bin.env_script_all_files(
+      libexec/'bin',
+      :PYTHONPATH => ENV['PYTHONPATH'],
+      :GAMSITECONFIGDIR => prefix/'config',
+      :GAMUSERCONFIGDIR => '${HOME}/.config/gam',
+    )
+  end
+
+  def caveats; <<-EOS.undent
+    GAM must be configured before use.
+      - User configuration files should be located under ~/.config/gam
+      - Global configuration files are under #{prefix}/config
+
+
+    Configuration Steps:
+      1. Complete the steps at https://github.com/jay0lee/GAM/wiki/CreatingClientSecretsFile
+
+      2. Create private configuration directory.
+           mkdir -p ~/.config/gam
+
+      3. Copy your secrets to your private configuration directory.
+           cp client_secrets.json ~/.config/gam
+           cp client_secrets.json ~/.config/gam
+
+      - or -
+
+      3. To use finder for copying, open the gam configuration directory in finder.
+           open ~/.config/gam
+
+
+    For more info: https://github.com/jay0lee/GAM
+
+    EOS
   end
 
   test do
