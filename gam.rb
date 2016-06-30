@@ -116,7 +116,6 @@ class Gam < Formula
 
       3. Copy your secrets to your private configuration directory.
            cp client_secrets.json ~/.config/gam
-           cp client_secrets.json ~/.config/gam
 
       - or -
 
