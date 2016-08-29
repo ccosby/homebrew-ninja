@@ -1,70 +1,78 @@
-require 'formula'
-
 class HpnSsh < Formula
-  homepage 'http://www.openssh.com/'
-  url 'http://ftp5.usa.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-6.5p1.tar.gz'
-  version '6.5p1'
-  sha256 'a1195ed55db945252d5a1730d4a2a2a5c1c9a6aa01ef2e5af750a962623d9027'
-
-  option 'with-brewed-openssl', 'Build with Homebrew OpenSSL instead of the system version'
-  option 'with-keychain-support', 'Add native OS X Keychain and Launch Daemon support to ssh-agent'
-
-  depends_on 'openssl' if build.with? 'brewed-openssl'
-  depends_on 'autoconf' => :build if build.with? 'keychain-support'
-  depends_on 'ldns' => :optional
-  depends_on 'pkg-config' => :build if build.with? "ldns"
+  desc "OpenBSD freely-licensed SSH connectivity tools"
+  homepage "http://www.psc.edu/index.php/hpn-ssh"
+  url "http://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-7.2p2.tar.gz"
+  mirror "https://www.mirrorservice.org/pub/OpenBSD/OpenSSH/portable/openssh-7.2p2.tar.gz"
+  version "7.2p2"
+  sha256 "a72781d1a043876a224ff1b0032daa4094d87565a68528759c1c2cab5482548c"
 
   conflicts_with 'openssh'
 
-  patch do
-    # Apply Kenny Root's revised version of Simon Wilkinson's gsskex patch (http://www.sxw.org.uk/computing/patches/openssh.html),
-    # which has also been included in Apple's openssh for a while.
-    # https://gist.github.com/kruton/8951373
-    url 'https://gist.github.com/kruton/8951373/raw/a05b4a2d50bbac68e97d4747c1a34b53b9a941c4/openssh-6.5p1-apple-keychain.patch'
-    sha256 'b2d5a3ef6436cea6060aa227872ba4fdad97242a36800322eaa70d9bbf3895d1'
-  end if build.with? 'keychain-support'
+  # The keychain support patch was removed in homebrew-dupes/openssh. We'll follow their lead.
+  # https://github.com/Homebrew/homebrew-dupes/pull/482#issuecomment-118994372
+  option "with-libressl", "Build with LibreSSL instead of OpenSSL"
 
-  patch do
-    # The HPN-SSH patch installs over the Apple Keychain patch
-    url 'http://downloads.sourceforge.net/project/hpnssh/HPN-SSH%2014v4%206.5p1/openssh-6.5p1-hpnssh14v4.diff.gz'
-    sha256 '7b0507172759dd2c85965728981343d4b60d8b8c5faf2c20dc8145606421c364'
+  depends_on "openssl" => :recommended
+  depends_on "libressl" => :optional
+  depends_on "ldns" => :optional
+  depends_on "pkg-config" => :build if build.with? "ldns"
+  unless OS.mac?
+    depends_on "homebrew/dupes/libedit"
+    depends_on "homebrew/dupes/krb5"
+  end
+
+  if OS.mac?
+    # Both these patches are applied by Apple.
+    patch do
+      url "https://raw.githubusercontent.com/Homebrew/patches/1860b0a74/openssh/patch-sandbox-darwin.c-apple-sandbox-named-external.diff"
+      sha256 "d886b98f99fd27e3157b02b5b57f3fb49f43fd33806195970d4567f12be66e71"
+    end
+
+    patch do
+      url "https://raw.githubusercontent.com/Homebrew/patches/d8b2d8c2/openssh/patch-sshd.c-apple-sandbox-named-external.diff"
+      sha256 "3505c58bf1e584c8af92d916fe5f3f1899a6b15cc64a00ddece1dc0874b2f78f"
+    end
+
+    # Patch for SSH tunnelling issues caused by launchd changes on Yosemite
+    patch do
+      url "https://raw.githubusercontent.com/Homebrew/patches/d8b2d8c2/OpenSSH/launchd.patch"
+      sha256 "df61404042385f2491dd7389c83c3ae827bf3997b1640252b018f9230eab3db3"
+    end
+
+    # Patch enabling High Performance SSH (hpn-ssh)
+    patch do
+      url 'http://downloads.sourceforge.net/project/hpnssh/HPN-SSH%2014v10%207.2p2/openssh-7_2_P2-hpn-KitchenSink-14.10.diff'
+      sha256 "f083d4c4a2054808386e974accda385542ce150f0c0f079ec1a0d4fa78888b17"
+    end
   end
 
   def install
-    system "autoreconf -i" if build.with? 'keychain-support'
-
-    if build.with? "keychain-support"
-      ENV.append "CPPFLAGS", "-D__APPLE_LAUNCHD__ -D__APPLE_KEYCHAIN__"
-      ENV.append "LDFLAGS", "-framework CoreFoundation -framework SecurityFoundation -framework Security"
-    end
+    ENV.append "CPPFLAGS", "-D__APPLE_SANDBOX_NAMED_EXTERNAL__" if OS.mac?
 
     args = %W[
       --with-libedit
+      --with-kerberos5
       --prefix=#{prefix}
+      --sysconfdir=#{etc}/ssh
     ]
+    args << "--with-pam" if OS.mac?
+    args << "--with-privsep-path=#{var}/lib/sshd" if OS.linux?
 
-    args << "--with-ssl-dir=#{Formulary.factory('openssl').opt_prefix}" if build.with? 'brewed-openssl'
+    if build.with? "libressl"
+      args << "--with-ssl-dir=#{Formula["libressl"].opt_prefix}"
+    else
+      args << "--with-ssl-dir=#{Formula["openssl"].opt_prefix}"
+    end
+
     args << "--with-ldns" if build.with? "ldns"
-    args << "--without-openssl-header-check"
 
     system "./configure", *args
     system "make"
-    system "make install"
-  end
+    system "make", "install"
 
-  def caveats
-    if build.with? "keychain-support" then <<-EOS.undent
-        For complete functionality, please modify:
-          /System/Library/LaunchAgents/org.openbsd.ssh-agent.plist
-
-        and change ProgramArguments from
-          /usr/bin/ssh-agent
-        to
-          #{HOMEBREW_PREFIX}/bin/ssh-agent
-
-        After that, you can start storing private key passwords in
-        your OS X Keychain.
-      EOS
-    end
+    # This was removed by upstream with very little announcement and has
+    # potential to break scripts, so recreate it for now.
+    # Debian have done the same thing.
+    bin.install_symlink bin/"ssh" => "slogin"
   end
 end
