@@ -1,8 +1,8 @@
 class Gam < Formula
   desc 'Command line management for Google Apps'
   homepage 'https://github.com/jay0lee/GAM'
-  url 'https://github.com/jay0lee/GAM/archive/v3.65.tar.gz'
-  sha256 '02ee1a5f5fcff5cd65a73786221a3a35fab38c12675060f8d0a0331216ca141c'
+  url 'https://github.com/jay0lee/GAM/archive/v3.71.tar.gz'
+  sha256 '4debbea587bbcda4cc2f52cc794af40b31f37ee25f70be9c2c439e324bb6ab49'
 
   depends_on :python if MacOS.version <= :snow_leopard
 
@@ -12,18 +12,18 @@ class Gam < Formula
   end
 
   resource 'googleapiclient' do
-    url 'https://pypi.python.org/packages/source/g/google-api-python-client/google-api-python-client-1.4.2.tar.gz'
-    sha256 '2cd7ccc797b0f5d1ef75ea1ebf749da47c4972daf534d22fd3c6b4dfbd9a88ee'
+    url 'https://pypi.python.org/packages/3f/d0/2ecf9a160ebe7aba392d5bf21b616b204e2c49c79603dfb53c171e9bbe2c/google-api-python-client-1.5.3.tar.gz'
+    sha256 'd916e04969cb1fd6727b9f49290828e9d7162b90c1d5b4be0aed3c171a75d8be'
   end
 
   resource 'uritemplate' do
-    url 'https://pypi.python.org/packages/source/u/uritemplate/uritemplate-0.6.tar.gz'
-    sha256 'a30e230aeb7ebedbcb5da9999a17fa8a30e512e6d5b06f73d47c6e03c8e357fd'
+    url 'https://pypi.python.org/packages/cd/db/f7b98cdc3f81513fb25d3cbe2501d621882ee81150b745cdd1363278c10a/uritemplate-3.0.0.tar.gz'
+    sha256 'c02643cebe23fc8adb5e6becffe201185bf06c40bda5c0b4028a93f1527d011d'
   end
 
   resource 'oauth2client' do
-    url 'https://pypi.python.org/packages/source/o/oauth2client/oauth2client-2.0.2.tar.gz'
-    sha256 'c9f7bf68e9d0f9ec055f1f2f487e5ea53b97b7a2b82f01d48d9a9bb68239535a'
+    url 'https://pypi.python.org/packages/c0/7b/bc893e35d6ca46a72faa4b9eaac25c687ce60e1fbe978993fe2de1b0ff0d/oauth2client-3.0.0.tar.gz'
+    sha256 '5b5b056ec6f2304e7920b632885bd157fa71d1a7f3ddd00a43b1541a8d1a2460'
   end
 
   resource 'pyasn1' do
@@ -37,8 +37,8 @@ class Gam < Formula
   end
 
   resource 'rsa' do
-    url 'https://pypi.python.org/packages/source/r/rsa/rsa-3.3.tar.gz'
-    sha256 '03f3d9bebad06681771016b8752a40b12f615ff32363c7aa19b3798e73ccd615'
+    url 'https://pypi.python.org/packages/source/r/rsa/rsa-3.4.2.tar.gz'
+    sha256 '25df4e10c263fb88b5ace923dd84bf9aa7f5019687b5e55382ffcdb8bede9db5'
   end
 
   resource 'atom' do
@@ -86,18 +86,16 @@ class Gam < Formula
     (libexec/'bin').install %w[
       src/LICENSE
       src/gam.py
-    ]
-
-    (prefix/'config').install %w[
-      src/admin-settings-v1.json
+      src/admin-settings-v2.json
       src/cloudprint-v2.json
+      src/email-audit-v1.json
+      src/email-settings-v2.json
     ]
 
     bin.install_symlink 'gam.py' => 'gam'
     bin.env_script_all_files(
       libexec/'bin',
       :PYTHONPATH => ENV['PYTHONPATH'],
-      :GAMSITECONFIGDIR => prefix/'config',
       :GAMUSERCONFIGDIR => '${HOME}/.config/gam',
     )
   end
@@ -105,7 +103,7 @@ class Gam < Formula
   def caveats; <<-EOS.undent
     GAM must be configured before use.
       - User configuration files should be located under ~/.config/gam
-      - Global configuration files are under #{prefix}/config
+      - Global configuration files are under #{libexec}/bin
 
 
     Configuration Steps:
@@ -116,11 +114,6 @@ class Gam < Formula
 
       3. Copy your secrets to your private configuration directory.
            cp client_secrets.json ~/.config/gam
-
-      - or -
-
-      3. To use finder for copying, open the gam configuration directory in finder.
-           open ~/.config/gam
 
 
     For more info: https://github.com/jay0lee/GAM
