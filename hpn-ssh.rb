@@ -73,6 +73,6 @@ class HpnSsh < Formula
   end
 
   test do
-    assert_match "OpenSSH_", shell_output("#{bin}/ssh -V 2>&1")
+    assert_match "OpenSSH_#{version}-hpn", shell_output("#{bin}/ssh -V 2>&1")
   end
 end
