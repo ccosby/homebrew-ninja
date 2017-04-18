@@ -1,10 +1,10 @@
 class HpnSsh < Formula
   desc "OpenBSD freely-licensed SSH connectivity tools"
   homepage "http://www.psc.edu/index.php/hpn-ssh"
-  url "http://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-7.2p2.tar.gz"
-  mirror "https://www.mirrorservice.org/pub/OpenBSD/OpenSSH/portable/openssh-7.2p2.tar.gz"
-  version "7.2p2"
-  sha256 "a72781d1a043876a224ff1b0032daa4094d87565a68528759c1c2cab5482548c"
+  url "http://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-7.5p1.tar.gz"
+  mirror "https://www.mirrorservice.org/pub/OpenBSD/OpenSSH/portable/openssh-7.5p1.tar.gz"
+  version "7.5p1"
+  sha256 "9846e3c5fab9f0547400b4d2c017992f914222b3fd1f8eee6c7dc6bc5e59f9f0"
 
   conflicts_with 'openssh'
 
@@ -29,7 +29,7 @@ class HpnSsh < Formula
     end
 
     patch do
-      url "https://raw.githubusercontent.com/Homebrew/patches/d8b2d8c2/openssh/patch-sshd.c-apple-sandbox-named-external.diff"
+      url "https://raw.githubusercontent.com/Homebrew/patches/  /openssh/patch-sshd.c-apple-sandbox-named-external.diff"
       sha256 "3505c58bf1e584c8af92d916fe5f3f1899a6b15cc64a00ddece1dc0874b2f78f"
     end
 
@@ -41,8 +41,8 @@ class HpnSsh < Formula
 
     # Patch enabling High Performance SSH (hpn-ssh)
     patch do
-      url 'http://downloads.sourceforge.net/project/hpnssh/HPN-SSH%2014v10%207.2p2/openssh-7_2_P2-hpn-KitchenSink-14.10.diff'
-      sha256 "f083d4c4a2054808386e974accda385542ce150f0c0f079ec1a0d4fa78888b17"
+      url 'https://downloads.sourceforge.net/project/hpnssh/HPN-SSH%2014v13%207.5p1/openssh-7_5_P1-hpn-KitchenSink-14.13.diff'
+      sha256 "c88b480a1110879d75cdfe06cc704086a8bf7ddf63bc66be6a899f9a9814e4f2"
     end
   end
 
