@@ -6,9 +6,20 @@ enabled version of openssh instead of the absolute latest.
 
 How do I install these formulae?
 --------------------------------
-Just `brew tap ccosby/ninja` and then `brew install <formula>`.
+Just run the command :
 
-If the formula conflicts with one from mxcl/master or another tap, you can `brew install ccosby/ninja/<formula>`.
+`brew tap ccosby/ninja` 
+
+and then :
+
+`brew install ninja`
+
+You should get this output (OS X 10.9.1) :
+
+
+![Home-brew-ninja](http://thecustomizewindows.com/download/brew-ninja.png) 
+
+If the formula conflicts with one from mxcl/master or another tap, you can `brew install ccosby/ninja`.
 
 You can also install via URL:
 
