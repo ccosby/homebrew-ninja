@@ -1,15 +1,17 @@
 class HpnSsh < Formula
   desc "OpenBSD freely-licensed SSH connectivity tools"
-  homepage "http://www.psc.edu/index.php/hpn-ssh"
-  url "http://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-7.5p1.tar.gz"
+  homepage "https://www.psc.edu/index.php/hpn-ssh"
+
+  url "https://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-7.5p1.tar.gz"
   mirror "https://www.mirrorservice.org/pub/OpenBSD/OpenSSH/portable/openssh-7.5p1.tar.gz"
   version "7.5p1"
   sha256 "9846e3c5fab9f0547400b4d2c017992f914222b3fd1f8eee6c7dc6bc5e59f9f0"
 
   conflicts_with 'openssh'
 
-  # The keychain support patch was removed in homebrew-dupes/openssh. We'll follow their lead.
+  # Please don't resubmit the keychain patch option. It will never be accepted.
   # https://github.com/Homebrew/homebrew-dupes/pull/482#issuecomment-118994372
+
   option "with-libressl", "Build with LibreSSL instead of OpenSSL"
 
   depends_on "openssl" => :recommended
@@ -31,12 +33,6 @@ class HpnSsh < Formula
     patch do
       url "https://raw.githubusercontent.com/Homebrew/patches/d8b2d8c2/openssh/patch-sshd.c-apple-sandbox-named-external.diff"
       sha256 "3505c58bf1e584c8af92d916fe5f3f1899a6b15cc64a00ddece1dc0874b2f78f"
-    end
-
-    # Patch for SSH tunnelling issues caused by launchd changes on Yosemite
-    patch do
-      url "https://raw.githubusercontent.com/Homebrew/patches/d8b2d8c2/OpenSSH/launchd.patch"
-      sha256 "df61404042385f2491dd7389c83c3ae827bf3997b1640252b018f9230eab3db3"
     end
 
     # Patch enabling High Performance SSH (hpn-ssh)
@@ -74,5 +70,9 @@ class HpnSsh < Formula
     # potential to break scripts, so recreate it for now.
     # Debian have done the same thing.
     bin.install_symlink bin/"ssh" => "slogin"
+  end
+
+  test do
+    assert_match "OpenSSH_", shell_output("#{bin}/ssh -V 2>&1")
   end
 end
